@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="theme-color" content="#1a1008" />
+    <title>Световете на Руди — Първото приключение</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #1a1008;
+        overflow: hidden;
+      }
+      #wrap {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #intro-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      #skip-hint {
+        position: absolute;
+        bottom: max(24px, env(safe-area-inset-bottom, 16px));
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.45);
+        letter-spacing: 0.04em;
+        pointer-events: none;
+        opacity: 0;
+        animation: fadeInOut 3s ease-in-out 2s both;
+      }
+      @keyframes fadeInOut {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <video
+        id="intro-video"
+        src="intro.mp4"
+        playsinline
+        preload="auto"
+      ></video>
+      <div id="skip-hint">Докосни, за да пропуснеш</div>
+    </div>
+    <script>
+      (function () {
+        var GAME_URL = "game.html";
+        var redirected = false;
+
+        function goToGame() {
+          if (redirected) return;
+          redirected = true;
+          window.location.href = GAME_URL;
+        }
+
+        var video = document.getElementById("intro-video");
+        var wrap = document.getElementById("wrap");
+
+        video.addEventListener("ended", goToGame);
+        video.addEventListener("error", goToGame);
+        wrap.addEventListener("click", goToGame);
+
+        // Опит за автоматично пускане със звук. Ако браузърът го блокира
+        // (изисква предходен жест от потребителя), прескачаме директно
+        // към играта, без да засядаме на черен екран.
+        setTimeout(function () {
+          var playPromise = video.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(goToGame);
+          }
+        }, 100);
+      })();
+    </script>
+  </body>
+</html>
